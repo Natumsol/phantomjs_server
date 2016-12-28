@@ -1,4 +1,4 @@
-var fs = require(fs);
+var fs = require("fs");
 
 exports.saveToGridFS = function (gridfs, filename, fileUri) {
     return new Promise(function(resolve, reject) {

@@ -100,7 +100,7 @@ module.exports = function (app) {
         var taskId = req.body.taskId;
         Task.findById(taskId).then(function (task) {
             config.walk.excludeSelectors = task.diffRules;
-
+            console.log(task);
             var monitor = new Monitor(task.url, config);
             monitor.on('debug', function (data) {
                 console.log('[DEBUG] ' + data);
@@ -123,7 +123,7 @@ module.exports = function (app) {
                             console.log("basedir = ", dir);
                         }
                     });
-
+                    res.json(monitor.log);
                 }, true); //
             } else {
 
@@ -133,5 +133,25 @@ module.exports = function (app) {
         }).catch(function (err) {
             res.json(err);
         })
+    })
+
+    app.route("/init").get(function (req, res) {
+        (new Task({
+            appId: "5858f16e3d8edd17ca450148",
+            url: "http://localhost:8080",
+            domRules: [],
+            diffRules: ["h1:contains('岳阳楼记')"],
+            base: null
+        })).save().then(function(){
+            res.json({
+                status:0,
+                message:"init successful!"
+            })
+        }).catch(function(err) {
+            res.json({
+                status:-1,
+                message:err.toString()
+            })
+        });
     })
 }

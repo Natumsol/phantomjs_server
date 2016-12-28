@@ -19,11 +19,11 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+// app.use(express.static(path.join(__dirname, 'public')));
 require("./models/mon");
 require("./models/task");
 mongoose.Promise = global.Promise;
-var conn = mongoose.createConnection("mongodb://192.168.88.33/fpms");
+var conn = mongoose.createConnection("mongodb://127.0.0.1/fpms");
 conn.on('open', function () {
     var gfs = Grid(conn.db);
     app.set('gridfs', gfs);
