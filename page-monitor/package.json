@@ -1,0 +1,88 @@
+{
+  "_args": [
+    [
+      {
+        "raw": "page-monitor@^0.5.4",
+        "scope": null,
+        "escapedName": "page-monitor",
+        "name": "page-monitor",
+        "rawSpec": "^0.5.4",
+        "spec": ">=0.5.4 <0.6.0",
+        "type": "range"
+      },
+      "D:\\Project\\phantomjs_server"
+    ]
+  ],
+  "_from": "page-monitor@>=0.5.4 <0.6.0",
+  "_id": "page-monitor@0.5.4",
+  "_inCache": true,
+  "_location": "/page-monitor",
+  "_nodeVersion": "0.12.2",
+  "_npmUser": {
+    "name": "fouber",
+    "email": "fouber.NET@gmail.com"
+  },
+  "_npmVersion": "2.7.4",
+  "_phantomChildren": {},
+  "_requested": {
+    "raw": "page-monitor@^0.5.4",
+    "scope": null,
+    "escapedName": "page-monitor",
+    "name": "page-monitor",
+    "rawSpec": "^0.5.4",
+    "spec": ">=0.5.4 <0.6.0",
+    "type": "range"
+  },
+  "_requiredBy": [
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/page-monitor/-/page-monitor-0.5.4.tgz",
+  "_shasum": "04cd0dc7a08b1a9e216dd41b46881ec819904477",
+  "_shrinkwrap": null,
+  "_spec": "page-monitor@^0.5.4",
+  "_where": "D:\\Project\\phantomjs_server",
+  "author": {
+    "name": "fouber",
+    "email": "fouber.NET@gmail.com"
+  },
+  "bugs": {
+    "url": "https://github.com/fouber/page-monitor/issues"
+  },
+  "dependencies": {
+    "phantomjs": "~1.9.16"
+  },
+  "description": "monitor pages and diff the dom change with phantomjs",
+  "devDependencies": {},
+  "directories": {},
+  "dist": {
+    "shasum": "04cd0dc7a08b1a9e216dd41b46881ec819904477",
+    "tarball": "https://registry.npmjs.org/page-monitor/-/page-monitor-0.5.4.tgz"
+  },
+  "gitHead": "c0d09f63c062e3c013829aa3d4ab51648953fa0a",
+  "homepage": "https://github.com/fouber/page-monitor",
+  "keywords": [
+    "monitor",
+    "phantomjs",
+    "phantom",
+    "diff"
+  ],
+  "license": "MIT",
+  "main": "index.js",
+  "maintainers": [
+    {
+      "name": "fouber",
+      "email": "fouber.NET@gmail.com"
+    }
+  ],
+  "name": "page-monitor",
+  "optionalDependencies": {},
+  "readme": "ERROR: No README data found!",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fouber/page-monitor.git"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "version": "0.5.4"
+}
