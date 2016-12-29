@@ -1,60 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>测试页面</title>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="./style.css">
 </head>
-<body>
-<div class="son1">
-    <h1>岳阳楼记</h1>
-</div>
-<div class="son2">
-    <div class="pingfen">
-        <div class="line1">
-            (20013人评分) <span>8.2</span>
-        </div>
-        <div class="line2">
-            <div class="lright">
-                <div class="tiao" style="width:67.2762704242243%;"></div>
-                <div class="tiao" style="width:8.73931944236246%;"></div>
-                <div class="tiao" style="width:5.13166441812822%;"></div>
-                <div class="tiao" style="width:4.1922750212362%;"></div>
-                <div class="tiao" style="width:14.6604706940489%;"></div>
-            </div>
-        </div>
-    </div>
-    <p style="margin:0px; font-size:12px;line-height:160%;"><span>朝代：</span>宋代</p>
-    <p style="margin:0px; font-size:12px;line-height:160%;"><span>作者：</span><a href="/author_510.aspx" target="_blank">范仲淹</a></p>
-    <p style="margin:0px; font-size:12px;line-height:160%;"><span>原文：</span></p>
-    <p>　　庆历四年春，滕子京谪守巴陵郡。越明年，政通人和，百废具兴。乃重修岳阳楼，增其旧制，刻唐贤今人诗赋于其上。属予作文以记之。(具 通：俱)</p>
-    <p>　　予观夫巴陵胜状，在洞庭一湖。衔远山，吞长江，浩浩汤汤，横无际涯；朝晖夕阴，气象万千。此则岳阳楼之大观也，前人之述备矣。然则北通巫峡，南极潇湘，迁客骚人，多会于此，览物之情，得无异乎?</p>
-    <p>　　若夫霪雨霏霏，连月不开，阴风怒号，浊浪排空；日星隐曜，山岳潜形；商旅不行，樯倾楫摧；薄暮冥冥，虎啸猿啼。登斯楼也，则有去国怀乡，忧谗畏讥，满目萧然，感极而悲者矣。(隐曜 一作：隐耀；霪雨 通：淫雨)</p>
-    <p>　　至若春和景明，波澜不惊，上下天光，一碧万顷；沙鸥翔集，锦鳞游泳；岸芷汀兰，郁郁青青。而或长烟一空，皓月千里，浮光跃金，静影沉璧，渔歌互答，此乐何极！登斯楼也，则有心旷神怡，宠辱偕忘，把酒临风，其喜洋洋者矣。</p>
-    <p>　　嗟夫！予尝求古仁人之心，或异二者之为，何哉？不以物喜，不以己悲；居庙堂之高则忧其民；处江湖之远则忧其君。是进亦忧，退亦忧。然则何时而乐耶？其必曰“先天下之忧而忧，后天下之乐而乐”乎。噫！微斯人，吾谁与归？</p>
-    <p>　　时六年九月十五日。</p>
 
-    <p>现在的时间是: <span id="time"></span></p>
-</div>
-<div class="shileft">
-    <div class="son1">
-        <h1>范仲淹</h1>
+<body class="container">
+    <div class="article">
+        <h1>测试</h1>
+        <h1 class="title" title="hehe">水调歌头 - 明月几时有</h1>
+        <p style="color: #aaa">丙辰中秋，欢饮达旦，大醉作此篇，兼怀子由。</p>
+        <img src="pic.jpg" alt="">
+        <p>明月几时有，把酒问青天。</p>
+        <p>不知天上宫阙，今夕是何年。</p>
+        <p>我欲乘风归去，又恐琼楼玉宇，高处不胜寒。</p>
+        <p>起舞弄清影，何似在人间？</p>
+        <p>转朱阁低绮户照无眠。</p>
+        <p>不应有恨，何事长向别时圆？</p>
+        <p>人有悲欢离合，月有阴晴圆缺，此事古难全。</p>
+        <p>但愿人长久，千里共婵娟。</p>
     </div>
-    <div class="son2" style="overflow:auto;">
-        <div style=" float:left; width:111px; height:155px; border:1px solid #E0DEDE; text-align:center; padding-top:3px; padding-bottom:2px; margin-right:8px;">
-            <img src="http://img.gushiwen.org/authorImg/fanzhongyan.jpg" width="105" height="150" alt="范仲淹">
-        </div>
-        <p>　　范仲淹（989－1052年），字希文，汉族，北宋著名的政治家、思想家、军事家、文学家，世称“范文正公”。范仲淹文学素养很高，写有著名的《岳阳楼记》。</p>
-    </div>
-
-
-</div>
-<script>
-    window.onload = function() {
-        setInterval(function(){
-            document.getElementById("time").innerHTML = (new Date()).toLocaleTimeString();
-        }, 1000)
-    }
-</script>
+    <p class="time-container">现在是：<span id="time"></span></p>
+    <script>
+        window.onload = function () {
+            setInterval(function () {
+                document.getElementById("time").innerText = (new Date()).toLocaleTimeString();
+            }, 1000);
+        }
+    </script>
 </body>
+
+
 </html>
