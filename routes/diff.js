@@ -1,7 +1,7 @@
 var Monitor = require("../page-monitor");
 var fs = require('fs');
 var path = require("path");
-var saveToGridFS = require("../util").saveToGridFS;
+var util = require("../util");
 var config = {
     page: {
         viewportSize: {
@@ -113,25 +113,166 @@ module.exports = function (app) {
                 tree, // tree.json ObjectId
                 info, // info.json ObjectId
                 screenShot, // screenShot.jpg ObjectId
-                diffPic; // diff picture ObjectId
+                diffPic, // diff picture ObjectId
+                timestamp; // 时间戳
 
             if (!task.base) { // 没有基准页面
+                var files = ["tree.json", "info.json", "screenShot.jpg"];
                 monitor.capture(function (code) {
                     monitor.log.debug.forEach(function (value, index) {
                         if (/save capture /.test(value)) {
                             basedir = value.match(/\[(.*)\]/)[1];
-                            console.log("basedir = ", dir);
                         }
                     });
-                    res.json(monitor.log);
+                    timestamp = parseInt(path.parse(basedir).name);
+                    task.base = new Date(timestamp);
+                    Promise.all(files.map(function (filename) {
+                        return util.saveToGridFS(gridfs, filename, path.join(basedir, filename));
+                    })).then(function (files) {
+                        Promise.all([
+                            (new Mon({
+                                taskId: taskId,
+                                timestamp: timestamp,
+                                hasException: false,
+                                data: {
+                                    tree: files[0]._id,
+                                    info: files[1]._id,
+                                    screenShot: files[2]._id,
+                                    diffPic: null
+                                },
+                                uiExceptions: {
+                                    add: 0,
+                                    remove: 0,
+                                    text: 0,
+                                    style: 0
+                                },
+                                domException: []
+                            })).save(),
+                            task.save()
+                        ]).then(function (data) {
+                            res.json({
+                                status: 0,
+                                mon: data[0]
+                            });
+                        }).catch(function (err) {
+                            res.json({
+                                status: -1,
+                                errInfo: err.toString()
+                            })
+                        })
+                    })
                 }, true); //
-            } else {
+            } else { // 有基准页面
+                var files = [
+                        {
+                            filename: "tree.json",
+                            name: "tree"
+                        },
+                        {
+                            filename: "info.json",
+                            name: "info"
+                        },
+                        {
+                            filename: "screenShot.jpg",
+                            name: "screenShot"
+                        }],
+                    basePage = task.base.getTime(), // 获取基准页面URL
+                    basePageDir,
+                    parseDir;
+                monitor.capture(function (code) { // 截取当前时间点图片，
+                    monitor.log.debug.forEach(function (value, index) {
+                        if (/save capture /.test(value)) {
+                            basedir = value.match(/\[(.*)\]/)[1];
+                        }
+                    });
+                    console.log("basedir:", basedir);
+                    var parsedDir = path.parse(basedir)
+                    timestamp = parseInt(parsedDir.name);
+                    parsedDir.name = parsedDir.base = basePage.toString();
+                    basePageDir = path.format(parsedDir);
+                    console.log("basePageDir: ", basePageDir);
 
+                    files = files.map(function (file) {
+                        file.fileUri = path.join(basedir, file.filename);
+                        return file;
+                    })
+                    util.exists(basePageDir).then(function (status) {
+                        if (!status) { // 基准页面不存在
+                            fs.mkdirSync(basePageDir);
+                            Mon.findOne({timestamp: basePage})
+                                .then(function (mon) {
+                                    Promise.all(files.map(function (file) {
+                                        return util.readFromGridFS(gridfs,
+                                            mon.data[file.name],
+                                            path.join(basePageDir, file.filename)
+                                        );
+                                    }))
+                                        .then(function () {
+                                            monitor.diff(basePage, timestamp, function (code) {
+                                                console.log(monitor.log.info[0]); // diff result
+                                                console.log('[DONE] exit [' + code + ']');
+                                                var info = JSON.parse(monitor.log.info[0])
+                                                res.json(info);
+                                                files.push({
+                                                    filename: basePage + " - " + timestamp + ".jpg",
+                                                    name: "screenShot",
+                                                    fileUri: info.diff.screenshot
+                                                })
+
+                                                Promise.all(files.map(function (file) {
+                                                    return util.saveToGridFS(gridfs, file.filename, file.fileUri)
+                                                }))
+                                                    .then(function (files) {
+                                                        res.json(files);
+                                                        var count = info.diff.count;
+                                                        var hasException = !(count.add == 0 &&
+                                                            count.remove == 0 &&
+                                                            count.style == 0 &&
+                                                            count.text);
+
+                                                        Promise.all([
+                                                            (new Mon({
+                                                                taskId: taskId,
+                                                                timestamp: timestamp,
+                                                                hasException: hasException,
+                                                                data: {
+                                                                    tree: files[0]._id,
+                                                                    info: files[1]._id,
+                                                                    screenShot: files[2]._id,
+                                                                    diffPic: files[3]._id
+                                                                },
+                                                                uiExceptions: count,
+                                                                domException: []
+                                                            })).save(),
+                                                            task.save()
+                                                        ])
+                                                    })
+                                                    .catch(function (err) {
+                                                        res.json({
+                                                            status: -1,
+                                                            errInfo: err.toString()
+                                                        })
+                                                    })
+                                            });
+                                        })
+                                        .catch(function (err) {
+                                            res.json({
+                                                status: -1,
+                                                errInfo: err.toString()
+                                            })
+                                        })
+                                })
+                        } else {
+
+                        }
+                    })
+                }, true)
             }
-
-
         }).catch(function (err) {
-            res.json(err);
+            res.json({
+                status: -1,
+                errInfo: err.toString()
+            })
         })
     })
 
@@ -142,16 +283,55 @@ module.exports = function (app) {
             domRules: [],
             diffRules: ["h1:contains('岳阳楼记')"],
             base: null
-        })).save().then(function(){
+        })).save().then(function () {
             res.json({
-                status:0,
-                message:"init successful!"
+                status: 0,
+                message: "init successful!"
             })
-        }).catch(function(err) {
+        }).catch(function (err) {
             res.json({
-                status:-1,
-                message:err.toString()
+                status: -1,
+                message: err.toString()
             })
         });
     })
+
+    app.route("/read").get(function (req, res) {
+        var id = req.query.id;
+        var is = gridfs.createReadStream({
+            _id: id
+        });
+        res.type("jpg");
+        is.pipe(res);
+    })
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

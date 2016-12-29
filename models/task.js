@@ -14,7 +14,7 @@ var Task = new Schema({
     url: String,
     diffRules: [String],
     domRules: [String],
-    base: Number
+    base: Date
 });
 
 mongoose.model('Task', Task);
