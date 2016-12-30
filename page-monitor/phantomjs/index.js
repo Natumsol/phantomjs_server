@@ -32,7 +32,7 @@ var _ = require('../util.js');
 var diff = require('./diff.js');
 var walk = require('./walk.js');
 var highlight = require('./highlight.js');
-
+var dom_test = require('./dom_test');
 // generate communication token
 var TOKEN = _.unique();
 
@@ -384,6 +384,10 @@ M.prototype.capture = function(url, needDiff){
         var delay = evaluate(page, options.events.beforeWalk) || 0;
         log('delay before render: ' + delay + 'ms');
         setTimeout(function(){  // delay
+
+            log('begin dom structure and attr check');
+            page.evaluate(dom_test, []);
+
             log('walk tree');
             var right = page.evaluate(walk, self.token, options.walk);    //walk tree
             var rect = right.rect;
