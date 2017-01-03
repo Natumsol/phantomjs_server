@@ -120,5 +120,6 @@ _.log = {
     WARNING: '<[warning]>',
     INFO: '<[info]>',
     ERROR: '<[error]>',
-    NOTICE: '<[notice]>'
+    NOTICE: '<[notice]>',
+    DOM: '<[dom]>'
 };

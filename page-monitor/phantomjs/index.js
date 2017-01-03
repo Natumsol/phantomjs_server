@@ -228,20 +228,20 @@ var M = function(options){
  * @returns {object|boolean}
  */
 M.prototype.getLatestTree = function(){
-    if(fs.exists(this.latest)){
-        var time = fs.read(this.latest).trim();
-        if(time){
-            var tree = this.root + '/' + time + '/' + TREE_FILENAME;
-            if(fs.exists(tree)){
-                var content = fs.read(tree).trim();
-                return {
-                    time: time,
-                    file: tree,
-                    content: content
-                };
-            }
-        }
-    }
+    // if(fs.exists(this.latest)){
+    //     var time = fs.read(this.latest).trim();
+    //     if(time){
+    //         var tree = this.root + '/' + time + '/' + TREE_FILENAME;
+    //         if(fs.exists(tree)){
+    //             var content = fs.read(tree).trim();
+    //             return {
+    //                 time: time,
+    //                 file: tree,
+    //                 content: content
+    //             };
+    //         }
+    //     }
+    // }
     return false;
 };
 
@@ -385,9 +385,12 @@ M.prototype.capture = function(url, needDiff){
         log('delay before render: ' + delay + 'ms');
         setTimeout(function(){  // delay
 
-            log('begin dom structure and attr check');
-            page.evaluate(dom_test, []);
-
+            log('========== 开始 dom structure and attr 的检测！=============');
+            var domResults = page.evaluate(dom_test, options.domRules);
+            if(domResults && domResults.length) { // 有异常出现
+                console.log("有异常出现！");
+                log(JSON.stringify(domResults), _.log.DOM);
+            }
             log('walk tree');
             var right = page.evaluate(walk, self.token, options.walk);    //walk tree
             var rect = right.rect;

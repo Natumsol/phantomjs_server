@@ -23,7 +23,8 @@ var config = {
     },
     walk: {
         excludeSelectors: []
-    }
+    },
+    domRules: ["domrules"]
 };
 
 
@@ -37,7 +38,8 @@ module.exports = function (app) {
         var taskId = req.body.taskId;
         Task.findById(taskId).then(function (task) {
             config.walk.excludeSelectors = task.diffRules;
-            console.log(task);
+            config.domRules = task.domRules;
+            // console.log(task);
             var monitor = new Monitor(task.url, config);
             monitor.on('debug', function (data) {
                 console.log('[DEBUG] ' + data);
@@ -51,8 +53,8 @@ module.exports = function (app) {
                 info, // info.json ObjectId
                 screenShot, // screenShot.jpg ObjectId
                 diffPic, // diff picture ObjectId
+                domException = [], // DOM 异常
                 timestamp; // 时间戳
-
             if (!task.base) { // 没有基准页面
                 var files = ["tree.json", "info.json", "screenShot.jpg"];
                 monitor.capture(function (code) {
@@ -68,7 +70,7 @@ module.exports = function (app) {
                             basedir = value.match(/\[(.*)\]/)[1];
                         }
                     });
-                    if(!basedir) {
+                    if (!basedir) {
                         res.json({
                             status: -1,
                             errInfo: monitor.log.error
@@ -77,6 +79,11 @@ module.exports = function (app) {
                     }
                     timestamp = parseInt(path.parse(basedir).name);
                     task.base = new Date(timestamp);
+
+                    if(monitor.log.dom && monitor.log.dom[0]) { // DOM 异常
+                        domException = JSON.parse(monitor.log.dom[0]);
+                    }
+
                     Promise.all(files.map(function (filename) {
                         return util.saveToGridFS(gridfs, filename, path.join(basedir, filename));
                     }))
@@ -85,7 +92,7 @@ module.exports = function (app) {
                                 (new Mon({
                                     taskId: taskId,
                                     timestamp: timestamp,
-                                    hasException: false,
+                                    hasException: domException.length && true || false,
                                     data: {
                                         tree: files[0]._id,
                                         info: files[1]._id,
@@ -98,7 +105,7 @@ module.exports = function (app) {
                                         text: 0,
                                         style: 0
                                     },
-                                    domException: []
+                                    domException: domException
                                 })).save(),
                                 task.save()
                             ])
@@ -146,14 +153,14 @@ module.exports = function (app) {
                             basedir = value.match(/\[(.*)\]/)[1];
                         }
                     });
-                    if(!basedir) {
+                    if (!basedir) {
                         res.json({
                             status: -1,
                             errInfo: monitor.log.error
                         });
                         return;
                     }
-                    console.log( monitor.log);
+                    // console.log(monitor.log);
                     console.log("basedir:", basedir);
                     var parsedDir = path.parse(basedir)
                     timestamp = parseInt(parsedDir.name);
@@ -166,6 +173,10 @@ module.exports = function (app) {
                         file.fileUri = path.join(basedir, file.filename);
                         return file;
                     })
+
+                    if(monitor.log.dom && monitor.log.dom[0]) { // DOM 异常
+                        domException = JSON.parse(monitor.log.dom[0]);
+                    }
                     util.exists(basePageDir)
                         .then(function (status) {
                             if (!status) { // 基准页面不存在
@@ -186,26 +197,49 @@ module.exports = function (app) {
                         })
                         .then(function () {
                             monitor.diff(basePage, timestamp, function (code) {
-                                console.log(monitor.log.info[0]); // diff result
-                                console.log('[DONE] exit [' + code + ']');
-                                var info = JSON.parse(monitor.log.info[0])
-                                files.push({
-                                    filename: basePage + " - " + timestamp + ".jpg",
-                                    name: "screenShot",
-                                    fileUri: info.diff.screenshot
-                                })
+                                console.log("========== diff page ===========\n");
+                                if (!monitor.log.info[0]) {
+                                    console.log("页面没有变化！\n");
+                                    if (monitor.log.warning &&
+                                        monitor.log.warning.some(function (item) {
+                                            return item.trim() == "no change"
+                                        })) { // 对比无变化
+                                        var count = {
+                                            "add": 0,
+                                            "remove": 0,
+                                            "style": 0,
+                                            "text": 0
+                                        };
+                                    } else { // 错误返回
+                                        res.json({
+                                            status: -1,
+                                            errInfo: monitor.log.error
+                                        })
+                                        return;
+                                    }
+                                } else { // 对比有变化
+                                    console.log("页面有变化！\n");
+                                    // console.log(monitor.log.info[0]); // diff result
+                                    console.log('[DONE] exit [' + code + ']');
+                                    var info = JSON.parse(monitor.log.info[0])
+                                    files.push({
+                                        filename: basePage + " - " + timestamp + ".jpg",
+                                        name: "screenShot",
+                                        fileUri: info.diff.screenshot
+                                    })
+                                    var count = info.diff.count;
 
+                                }
                                 Promise.all(files.map(function (file) {
                                     return util.saveToGridFS(gridfs, file.filename, file.fileUri)
                                 }))
                                     .then(function (files) {
-                                        res.json(files);
-                                        var count = info.diff.count;
+                                        // res.json(files);
                                         var hasException = !(count.add == 0 &&
                                         count.remove == 0 &&
                                         count.style == 0 &&
-                                        count.text);
-                                        Promise.all([
+                                        count.text == 0) || domException.length;
+                                        return Promise.all([
                                             (new Mon({
                                                 taskId: taskId,
                                                 timestamp: timestamp,
@@ -214,13 +248,19 @@ module.exports = function (app) {
                                                     tree: files[0]._id,
                                                     info: files[1]._id,
                                                     screenShot: files[2]._id,
-                                                    diffPic: files[3]._id
+                                                    diffPic: (files[3] && files[3]._id) || null
                                                 },
                                                 uiExceptions: count,
-                                                domException: []
+                                                domException: domException
                                             })).save(),
                                             task.save()
                                         ])
+                                    })
+                                    .then(function (data) {
+                                        res.json({
+                                            status: 0,
+                                            mon: data[0]
+                                        });
                                     })
                                     .catch(function (err) {
                                         res.json({

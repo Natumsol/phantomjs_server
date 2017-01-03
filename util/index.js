@@ -25,7 +25,6 @@ exports.readFromGridFS = function(gridfs, id, filepath) {
         is.pipe(os);
         os.on("close", function (file) {
             resolve(file);
-            console.log(file);
         })
         os.on("error", function(err){
             reject(err);

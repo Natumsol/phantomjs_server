@@ -153,6 +153,7 @@ function mergeSettings(settings){
                 }
             }
         },
+        domRules: [],
         events: {
             init: function(token){
                 /*

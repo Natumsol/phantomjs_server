@@ -13,7 +13,10 @@ var Task = new Schema({
     appId: Schema.ObjectId,
     url: String,
     diffRules: [String],
-    domRules: [String],
+    domRules: [{
+        selector: String,
+        expect: String
+    }],
     base: Date
 });
 
