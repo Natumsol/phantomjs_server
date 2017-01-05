@@ -315,6 +315,7 @@ M.prototype.save = function(page, url, tree, rect, time){
         };
     } else {
         throw new Error('unable to make directory[' + dir + ']');
+        phantom.exit(1);
     }
 };
 

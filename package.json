@@ -17,6 +17,7 @@
     "morgan": "~1.7.0",
     "page-monitor": "^0.5.4",
     "serve-favicon": "~2.3.0",
-    "phantomjs": "~1.9.16"
+    "phantomjs": "~1.9.16",
+    "amqplib": "^0.5.1"
   }
 }
