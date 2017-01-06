@@ -5,6 +5,12 @@ var util = require("../util");
 var amqp = require('amqplib/callback_api');
 var config = require("../config");
 
+/**
+ * 执行DIFF和DOM check 的主函数
+ * @param gridfs
+ * @param db
+ */
+
 module.exports = function (gridfs, db) {
     var Mon = db.model("Mon"),
         Task = db.model("Task");
