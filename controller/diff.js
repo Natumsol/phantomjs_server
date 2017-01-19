@@ -18,19 +18,19 @@ module.exports = function (gridfs, db) {
     amqp.connect(config.rabbitURI, function (err, conn) { // 连接Rabbit MQ
         conn.createChannel(function (err, ch) { // 创建通道
 
-            var q = 'phantomjs_task_queue',// 声明消息队列名
-                response_q = "phantomjs_response_queue";
+            var queue = 'phantomjs_task_queue',// 声明消息队列名
+                response_queue = "phantomjs_response_queue";
 
-            ch.assertQueue(q, {durable: true}); // 设置消息队列
-            ch.assertQueue(response_q, {durable: true}); // 设置消息队列
+            ch.assertQueue(queue, {durable: true}); // 设置消息队列
+            ch.assertQueue(response_queue, {durable: true}); // 设置消息队列
 
             ch.prefetch(1); // 设置 RabbitMQ 每次接受的消息不超过1条
 
-            console.log("[*] Waiting for messages in %s. To exit press CTRL+C", q);
+            console.log("[*] Waiting for messages in %s. To exit press CTRL+C", queue);
 
-            var sendMessage = util.sendMessage(ch, response_q);
+            var sendMessage = util.sendMessage(ch, response_queue);
 
-            ch.consume(q, function (msg) {
+            ch.consume(queue, function (msg) {
                 console.log("收到新消息", msg.content.toString() + "\n");
                 var taskId = JSON.parse(msg.content.toString("utf-8")).taskId; // 获取任务ID
 
