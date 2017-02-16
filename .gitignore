@@ -3,4 +3,4 @@ temp/
 .idea/
 .vscode/
 /npm-debug.log
-.test.js
+test.js
