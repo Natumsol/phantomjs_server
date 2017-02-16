@@ -16,7 +16,7 @@ module.exports = {
         },
         render: {
             format: 'jpeg',     // @see http://phantomjs.org/api/webpage/method/render.html
-            quality: 60,        // @see http://phantomjs.org/api/webpage/method/render.html
+            quality: 70,        // @see http://phantomjs.org/api/webpage/method/render.html
             ext: 'jpg',         // the same as format, if not specified
         },
         walk: {
@@ -25,5 +25,5 @@ module.exports = {
         domRules: ["domrules"]
     },
     rabbitURI: "amqp://localhost",
-    mongodbURI: "mongodb://192.168.88.33/fpms"
+    mongodbURI: "mongodb://192.168.88.34/fpms"
 }

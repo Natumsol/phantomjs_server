@@ -31,13 +31,16 @@ module.exports = function (gridfs, db) {
             var sendMessage = util.sendMessage(ch, response_queue);
 
             ch.consume(queue, function (msg) {
-                console.log("收到新消息", msg.content.toString() + "\n");
+                console.log("收到新消息", msg.content.toString());
                 var taskId = JSON.parse(msg.content.toString("utf-8")).taskId; // 获取任务ID
 
                 Task.findById(taskId).then(function (task) {
                     config.phantomConfig.walk.excludeSelectors = task.diffRules;
                     config.phantomConfig.domRules = task.domRules;
-                    // console.log(task);
+                    console.log("===================== domRules ============");
+                    console.log(config.phantomConfig.domRules);
+                    console.log("===================== task ============");
+                    console.log(task);
                     var monitor = new Monitor(task.url, config.phantomConfig);
                     monitor.on('debug', function (data) {
                         console.log('[DEBUG] ' + data);
@@ -47,6 +50,7 @@ module.exports = function (gridfs, db) {
                     });
 
                     var basedir, // 截图文件的目录
+                        tree, // tree.json ObjectId
                         tree, // tree.json ObjectId
                         info, // info.json ObjectId
                         screenShot, // screenShot.jpg ObjectId
@@ -107,7 +111,7 @@ module.exports = function (gridfs, db) {
                                                 text: 0,
                                                 style: 0
                                             },
-                                            domException: domException
+                                            domExceptions: domException
                                         })).save(),
                                         task.save()
                                     ])
@@ -264,7 +268,7 @@ module.exports = function (gridfs, db) {
                                                             diffPic: (files[3] && files[3]._id) || null
                                                         },
                                                         uiExceptions: count,
-                                                        domException: domException
+                                                        domExceptions: domException
                                                     })).save(),
                                                     task.save()
                                                 ])
